@@ -510,7 +510,7 @@ static ngx_command_t  ngx_http_##_commands[] = {
 
 
 static ngx_http_module_t  ngx_http_##_module_ctx = {
-    ngx_http_##_add_variables,          /* preconfiguration */
+    NULL,                                  /* preconfiguration */
     NULL,                                  /* postconfiguration */
 
     NULL,                                  /* create main configuration */
@@ -519,8 +519,8 @@ static ngx_http_module_t  ngx_http_##_module_ctx = {
     NULL,                                  /* create server configuration */
     NULL,                                  /* merge server configuration */
 
-    ngx_http_##_create_loc_conf,        /* create location configration */
-    ngx_http_##_merge_loc_conf          /* merge location configration */
+    ngx_http_##_create_loc_conf,           /* create location configration */
+    ngx_http_##_merge_loc_conf             /* merge location configration */
 };
 
 
@@ -537,20 +537,6 @@ ngx_module_t  ngx_http_##_module = {
     NULL,                                  /* exit process */
     NULL,                                  /* exit master */
     NGX_MODULE_V1_PADDING
-};
-
-
-static char  ngx_http_##_version[] = " HTTP/1.0" CRLF;
-static char  ngx_http_##_version_11[] = " HTTP/1.1" CRLF;
-
-
-static ngx_keyval_t  ngx_http_##_headers[] = {
-    { ngx_string("Host"), ngx_string("$##_host") },
-    { ngx_string("Connection"), ngx_string("close") },
-    { ngx_string("Keep-Alive"), ngx_string("") },
-    { ngx_string("Expect"), ngx_string("") },
-    { ngx_string("Upgrade"), ngx_string("") },
-    { ngx_null_string, ngx_null_string }
 };
 
 
@@ -665,96 +651,6 @@ ngx_http_##_handler(ngx_http_request_t *r)
 static ngx_int_t
 ngx_http_##_create_key(ngx_http_request_t *r)
 {
-    size_t                      len, loc_len;
-    u_char                     *p;
-    uintptr_t                   escape;
-    ngx_str_t                  *key;
-    ngx_http_upstream_t        *u;
-    ngx_http_##_ctx_t       *ctx;
-    ngx_http_##_loc_conf_t  *plcf;
-
-    u = r->upstream;
-
-    plcf = ngx_http_get_module_loc_conf(r, ngx_http_##_module);
-
-    ctx = ngx_http_get_module_ctx(r, ngx_http_##_module);
-
-    key = ngx_array_push(&r->cache->keys);
-    if (key == NULL) {
-        return NGX_ERROR;
-    }
-
-    if (plcf->cache_key.value.len) {
-
-        if (ngx_http_complex_value(r, &plcf->cache_key, key) != NGX_OK) {
-            return NGX_ERROR;
-        }
-
-        return NGX_OK;
-    }
-
-    *key = ctx->vars.key_start;
-
-    key = ngx_array_push(&r->cache->keys);
-    if (key == NULL) {
-        return NGX_ERROR;
-    }
-
-    if (plcf->##_lengths && ctx->vars.uri.len) {
-
-        *key = ctx->vars.uri;
-        u->uri = ctx->vars.uri;
-
-        return NGX_OK;
-
-    } else if (ctx->vars.uri.len == 0 && r->valid_unparsed_uri && r == r->main)
-    {
-        *key = r->unparsed_uri;
-        u->uri = r->unparsed_uri;
-
-        return NGX_OK;
-    }
-
-    loc_len = (r->valid_location && ctx->vars.uri.len) ? plcf->location.len : 0;
-
-    if (r->quoted_uri || r->internal) {
-        escape = 2 * ngx_escape_uri(NULL, r->uri.data + loc_len,
-                                    r->uri.len - loc_len, NGX_ESCAPE_URI);
-    } else {
-        escape = 0;
-    }
-
-    len = ctx->vars.uri.len + r->uri.len - loc_len + escape
-          + sizeof("?") - 1 + r->args.len;
-
-    p = ngx_pnalloc(r->pool, len);
-    if (p == NULL) {
-        return NGX_ERROR;
-    }
-
-    key->data = p;
-
-    if (r->valid_location) {
-        p = ngx_copy(p, ctx->vars.uri.data, ctx->vars.uri.len);
-    }
-
-    if (escape) {
-        ngx_escape_uri(p, r->uri.data + loc_len,
-                       r->uri.len - loc_len, NGX_ESCAPE_URI);
-        p += r->uri.len - loc_len + escape;
-
-    } else {
-        p = ngx_copy(p, r->uri.data + loc_len, r->uri.len - loc_len);
-    }
-
-    if (r->args.len > 0) {
-        *p++ = '?';
-        p = ngx_copy(p, r->args.data, r->args.len);
-    }
-
-    key->len = p - key->data;
-    u->uri = *key;
-
     return NGX_OK;
 }
 
@@ -1142,7 +1038,6 @@ ngx_http_##_merge_loc_conf(ngx_conf_t *cf, void *parent, void *child)
 
     if (conf->upstream.upstream == NULL) {
         conf->upstream.upstream = prev->upstream.upstream;
-        conf->vars = prev->vars;
     }
 
     if (conf->##_lengths == NULL) {
@@ -1154,7 +1049,6 @@ ngx_http_##_merge_loc_conf(ngx_conf_t *cf, void *parent, void *child)
         clcf = ngx_http_conf_get_module_loc_conf(cf, ngx_http_core_module);
         if (clcf->handler == NULL && clcf->lmt_excpt) {
             clcf->handler = ngx_http_##_handler;
-            conf->location = prev->location;
         }
     }
 
