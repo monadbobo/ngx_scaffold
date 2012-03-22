@@ -1,0 +1,7 @@
+this is for nginx module template
+
+example:
+
+./ngx_scaffold.py --module_type=upstream --module_name=test
+
+will generate upstream module template

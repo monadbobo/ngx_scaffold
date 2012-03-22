@@ -161,6 +161,13 @@ ngx_http_##_header_filter(ngx_http_request_t *r)
 
 
 static ngx_int_t
+ngx_http_##_body_filter(ngx_http_request_t *r, ngx_chain_t *in)
+{
+   return ngx_http_next_body_filter(r, in);
+}
+
+
+static ngx_int_t
 ngx_http_##_filter_init(ngx_conf_t *cf)
 {
     ngx_http_next_header_filter = ngx_http_top_header_filter;
@@ -1384,7 +1391,8 @@ ngx_module_template = {"content_handler" : ngx_content_handler_template,
 
 def ngx_module_parse_args():
     parser = argparse.ArgumentParser(description='Nginx module scaffold.')
-    parser.add_argument('--module_type', dest="module_type", help='module type', required=True)
+    parser.add_argument('--module_type', dest="module_type", help='module type (filter/content_handler/upstream)',
+                        required=True)
     parser.add_argument('--module_name', dest="module_name", help='module name', required=True)
     parser.add_argument('--module_path', dest="module_path", help='module_path')
     args = parser.parse_args()
