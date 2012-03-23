@@ -3,7 +3,6 @@
 import argparse
 import string
 
-
 ngx_content_handler_config = """
 ngx_addon_name=ngx_http_##_module
 HTTP_MODULES="$HTTP_MODULES ngx_http_##_module"
@@ -13,7 +12,7 @@ NGX_ADDON_SRCS="$NGX_ADDON_SRCS $ngx_addon_dir/ngx_http_##_module.c"
 ngx_content_handler_template = """
 
 /*
- * Copyright (C) Simon Liu, http://www.pagefault.com
+ * Copyright (C) Simon Liu, http://www.pagefault.info
  */
 
 
@@ -99,7 +98,7 @@ NGX_ADDON_SRCS="$NGX_ADDON_SRCS $ngx_addon_dir/ngx_http_##_filter_module.c"
 ngx_filter_module_template = """
 
 /*
- * Copyright (C) Simon Liu, http://www.pagefault.com
+ * Copyright (C) Simon Liu, http://www.pagefault.info
  */
 
 
@@ -184,7 +183,7 @@ ngx_http_##_filter_init(ngx_conf_t *cf)
 ngx_upstream_template = """
 
 /*
- * Copyright (C) Simon Liu, http://www.pagefault.com
+ * Copyright (C) Simon Liu, http://www.pagefault.info
  */
 
 
@@ -1298,9 +1297,14 @@ def ngx_module_write_file(name, data, path):
     try:
         f = open (name, "w")
     except:
-        print "open file failed"
+        print "open file(%s) failed" % name
         exit(1)
-    f.write(data)
+    try:
+        f.write(data)
+    except:
+        f.close()
+        print "write file(%s) failed" % name
+        exit(1)
     f.close()
 
 def ngx_module_get_data(format_dict, args):
