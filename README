@@ -1,7 +1,24 @@
-this is for nginx module template
+this is for auto generate nginx module template
+
+use:
+
+[diaoliang@T-diaoliang ngx_scaffold]$ ./ngx_scaffold.py -h
+usage: ngx_scaffold.py [-h] --module_type MODULE_TYPE --module_name
+                       MODULE_NAME [--module_path MODULE_PATH]
+
+Nginx module scaffold.
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --module_type MODULE_TYPE
+                        module type (filter/content_handler/upstream)
+  --module_name MODULE_NAME
+                        module name
+  --module_path MODULE_PATH
+                        module_path
 
 example:
 
 ./ngx_scaffold.py --module_type=upstream --module_name=test
 
-will generate upstream module template
+this will generate upstream module template(module name is test) in current dir
