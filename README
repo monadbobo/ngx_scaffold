@@ -5,20 +5,23 @@ use:
 [diaoliang@T-diaoliang ngx_scaffold]$ ./ngx_scaffold.py -h
 usage: ngx_scaffold.py [-h] --module_type MODULE_TYPE --module_name
                        MODULE_NAME [--module_path MODULE_PATH]
+                       [--module_conf MODULE_CONF]
 
 Nginx module scaffold.
 
 optional arguments:
   -h, --help            show this help message and exit
-  --module_type MODULE_TYPE
-                        module type (filter/content_handler/upstream)
-  --module_name MODULE_NAME
+  --module_type MODULE_TYPE, -mt MODULE_TYPE
+                        module type (filter[f]/content_handler[c]/upstream[u])
+  --module_name MODULE_NAME, -mn MODULE_NAME
                         module name
-  --module_path MODULE_PATH
+  --module_path MODULE_PATH, -mp MODULE_PATH
                         module_path
+  --module_conf MODULE_CONF, -mc MODULE_CONF
+                        module_conf(pre/post/main/srv/loc/all)
 
 example:
 
-./ngx_scaffold.py --module_type=upstream --module_name=test
+./ngx_scaffold.py --module_type=upstream --module_name=test --module_conf="pre|loc"
 
-this will generate upstream module template(module name is test) in current dir
+this will generate upstream module template(module name is test, module conf include pre and loc) in current dir
